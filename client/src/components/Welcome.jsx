@@ -22,7 +22,7 @@ const Input = ({ placeholder, name, type, value, handleChange }) => (
 );
 
 const Welcome = () => {
-    const { connectWallet, currentAccount, formData, setFormData, handleChange, sendTransaction, isLoading} = useContext(TranscationContext);
+    const { downloadMeta ,connectWallet, currentAccount, formData, setFormData, handleChange, sendTransaction, isLoading} = useContext(TranscationContext);
 
     const handleSubmit = (e) => {
         const { addressTo, amount, keyword, message } = formData;
@@ -46,6 +46,7 @@ const Welcome = () => {
                         easily on 3ank-crypto
                     </p>
                     {!currentAccount && (
+                        <>
                         <button
                             type="button"
                             onClick={connectWallet}
@@ -55,6 +56,17 @@ const Welcome = () => {
                                 To Wallet
                             </p>
                         </button>
+                        <button
+                            type="button"
+                            onClick={downloadMeta}
+                            className="text-white flex flex-row justify-center items-center my-2 p-3 rounded-full cursor-pointer hover:bg-[#F97316] white-glassmorphism"
+                        >
+                            <p className="text-white text-base font-semibold">
+                                Install MetaMask
+                            </p>
+                        </button>
+                        </>
+                        
                     )}
 
                     <div className="grid sm:grid-cols-3 grid-cols-2 w-full mt-10">

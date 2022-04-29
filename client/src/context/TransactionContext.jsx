@@ -27,6 +27,7 @@ export const TranscationProvider = ({ children }) => {
         message: "",
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [isLogged, setIsLogged] = useState(false);
     const [transactionCount, setTransactionCount] = useState(
         localStorage.getItem("transactionCount")
     );
@@ -70,7 +71,9 @@ export const TranscationProvider = ({ children }) => {
     const checkIfWalletIsConnected = async () => {
         try {
             if (!ethereum) {
-                return alert("Isa MetaMask mu browser mako shamwari");
+                return alert(
+                    "BankCrypto has that MetaMask is missing in your browser.\nGo to Install MetaMask."
+                );
             }
 
             const accounts = await ethereum.request({ method: "eth_accounts" });
@@ -80,14 +83,14 @@ export const TranscationProvider = ({ children }) => {
 
                 getAllTransactions();
             } else {
-                console.log("No Accounts dzaonekwa");
+                console.log("No Accounts detected");
             }
 
             console.log(accounts);
         } catch (error) {
             console.log(error);
 
-            throw new Error("No ETH object yawanikwa");
+            throw new Error("No ETH object found");
         }
     };
 
@@ -108,7 +111,9 @@ export const TranscationProvider = ({ children }) => {
     const connectWallet = async () => {
         try {
             if (!ethereum) {
-                return alert("Isa MetaMask mu browser mako shamwari");
+                return alert(
+                    "BankCrypto has that MetaMask is missing in your browser.\nGo to Install MetaMask."
+                );
             }
 
             const accounts = await ethereum.request({
@@ -119,14 +124,28 @@ export const TranscationProvider = ({ children }) => {
         } catch (error) {
             console.log(error);
 
-            throw new Error("No ETH object yawanikwa");
+            throw new Error("No ETH object found");
+        }
+    };
+
+    const downloadMeta = async () => {
+        try {
+            // if(!ethereum){
+            return window.open("https://metamask.io/download/");
+            // }
+        } catch (error) {
+            console.log(error);
+
+            throw new Error("Could visit page");
         }
     };
 
     const sendTransaction = async () => {
         try {
             if (!ethereum) {
-                return alert("Isa MetaMask mu browser mako shamwari");
+                return alert(
+                    "BankCrypto has that MetaMask is missing in your browser.\nGo to Install MetaMask."
+                );
             }
 
             // get the data from form :)
@@ -182,6 +201,7 @@ export const TranscationProvider = ({ children }) => {
     return (
         <TranscationContext.Provider
             value={{
+                downloadMeta,
                 connectWallet,
                 currentAccount,
                 formData,
@@ -190,6 +210,7 @@ export const TranscationProvider = ({ children }) => {
                 sendTransaction,
                 transactions,
                 isLoading,
+                isLogged,
             }}
         >
             {children}

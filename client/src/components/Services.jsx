@@ -22,8 +22,8 @@ const Services = () => {
             <div className="flex mf:flex-row flex-col items-center justify-between md:p-20 py-12 px-4">
                 <div className="flex-1 flex-col justify-start items-start">
                     <h1 className="text-white text-3xl sm:text-5xl py-2 text-gradient">
-                        Services that we <br />
-                        continue to improve
+                        Our best services that<br />we 
+                        provide for you...
                     </h1>
                 </div>
             </div>
@@ -31,14 +31,14 @@ const Services = () => {
             <div className="flex-1 flex flex-col justify-start items-center ">
                 <ServiceCard
                     color="bg-[#2952E3]"
-                    title="Security Guaranteed"
+                    title="Security"
                     icon={
                         <BsShieldFillCheck
                             fontSize={21}
                             className="text-white"
                         />
                     }
-                    subtitle="Security is guaranteed. We alwways maintain privacy and maintain the quality of all products"
+                    subtitle="Security is highly guaranteed. We always maintain privacy and best the quality of all products."
                 />
 
                 <ServiceCard
@@ -50,7 +50,7 @@ const Services = () => {
                             className="text-white"
                         />
                     }
-                    subtitle="Security is guaranteed. We alwways maintain privacy and maintain the quality of all products"
+                    subtitle="Security is highly guaranteed. We always maintain privacy and best the quality of all products."
                 />
 
                 <ServiceCard
@@ -62,7 +62,7 @@ const Services = () => {
                             className="text-white"
                         />
                     }
-                    subtitle="Security is guaranteed. We alwways maintain privacy and maintain the quality of all products"
+                    subtitle="Security is highly guaranteed. We always maintain privacy and best the quality of all products."
                 />
             </div>
         </div>
