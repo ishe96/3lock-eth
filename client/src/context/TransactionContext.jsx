@@ -72,7 +72,7 @@ export const TranscationProvider = ({ children }) => {
         try {
             if (!ethereum) {
                 return alert(
-                    "BankCrypto has that MetaMask is missing in your browser.\nGo to Install MetaMask."
+                    "BankCrypto has detected that MetaMask is missing in your browser.\nGo to Install MetaMask."
                 );
             }
 
@@ -112,7 +112,7 @@ export const TranscationProvider = ({ children }) => {
         try {
             if (!ethereum) {
                 return alert(
-                    "BankCrypto has that MetaMask is missing in your browser.\nGo to Install MetaMask."
+                    "BankCrypto has detected that MetaMask is missing in your browser.\nGo to Install MetaMask."
                 );
             }
 
@@ -144,7 +144,7 @@ export const TranscationProvider = ({ children }) => {
         try {
             if (!ethereum) {
                 return alert(
-                    "BankCrypto has that MetaMask is missing in your browser.\nGo to Install MetaMask."
+                    "BankCrypto has detected that MetaMask is missing in your browser.\nGo to Install MetaMask."
                 );
             }
 
