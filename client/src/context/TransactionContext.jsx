@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { contractABI, contractAddress } from "../utils/constants";
+import { Network, Alchemy, Wallet, Utils } from "alchemy-sdk";
 
 export const TranscationContext = React.createContext();
 
 const { ethereum } = window;
 
-const getEthereumContract = () => {
-    const provider = new ethers.providers.Web3Provider(ethereum);
-    const signer = provider.getSigner();
-    const transactionContract = new ethers.Contract(
-        contractAddress,
-        contractABI,
-        signer
-    );
-
-    return transactionContract;
-};
-
 export const TranscationProvider = ({ children }) => {
+    var alchemysettings = {
+        // apiKey: "2paAFPEzTNDLG0exTn9kFdRoMwC9tGww",
+        apiKey: "VhT7rJdwQ3g_NV6-vRjS_QtU02b7yoom",
+        network: Network.MATIC_MUMBAI,
+    };
+
+    var wallet_Key =
+        "39d99e4e23b8088672c4fc1b390c03fb60804ce88ea0135fd2086ea32802821b";
+
     const [currentAccount, setCurrentAccount] = useState("");
     const [formData, setFormData] = useState({
         addressTo: "",
@@ -37,38 +35,57 @@ export const TranscationProvider = ({ children }) => {
         setFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
     };
 
+    // const getEthereumContract = ()=>{
+    //     const alchemy = new Alchemy(alchemysettings);
+    // }
+
     const getAllTransactions = async () => {
+        const { ethereum } = window;
         try {
-            if (ethereum) {
-                const transactionContract = getEthereumContract();
-                const availableTransactions =
-                    await transactionContract.getAllTransactions();
+            const alchemy = new Alchemy(alchemysettings);
+            // const provider = await alchemy.core.getAssetTransfers(
+            //     "0x600d8E431eD06031dCd6cf4E423B22a693EbdEBD"
+            // );
+            // const transactionCount = await alchemy.core.getLogs(
+            //     // "0x0AA2DfAf89902cA0CD8dac4939Fc72CCc7075d4c"
+            //     "0x600d8E431eD06031dCd6cf4E423B22a693EbdEBD"
+            // );
+            let wallet = new Wallet(wallet_Key);
+            const transactionCount = await alchemy.core.getAssetTransfers({
+                fromBlock: "0x0",
+                fromAddress: "0x0AA2DfAf89902cA0CD8dac4939Fc72CCc7075d4c",
+                // toAddress: "0x0",
+                excludeZeroValue: true,
+                withMetadata: true,
+                category: ["erc721", "erc20"],
+            });
 
-                const structuredTransactions = availableTransactions.map(
-                    (transaction) => ({
-                        addressTo: transaction.receiver,
-                        addressFrom: transaction.sender,
-                        timestamp: new Date(
-                            transaction.timestamp.toNumber() * 1000
-                        ).toLocaleString(),
-                        message: transaction.message,
-                        keyword: transaction.keyword,
-                        amount: parseInt(transaction.amount._hex) / 10 ** 18,
-                    })
-                );
+            const txList = transactionCount.transfers;
 
-                console.log(structuredTransactions);
+            // console.log("Check: ", txList);
+            // console.log(transactionCount);
 
-                setTransactions(structuredTransactions);
-            } else {
-                console.log("ETH is not present");
-            }
+            const structuredTransactions = txList.map((transaction) => ({
+                addressTo: transaction.to,
+                addressFrom: transaction.from,
+                timestamp: new Date(
+                    transaction.metadata.blockTimestamp
+                ).toLocaleString(),
+                txBlock: transaction.blockNum,
+                txHash: transaction.hash,
+                // keyword: transaction.keyword,
+                // amount: parseInt(transaction.amount._hex) / 10 ** 18,
+            }));
+            console.log("Check : ", structuredTransactions);
+
+            // setTransactions(structuredTransactions);
         } catch (error) {
             console.log(error);
         }
     };
 
     const checkIfWalletIsConnected = async () => {
+        const { ethereum } = window;
         try {
             if (!ethereum) {
                 return alert(
@@ -81,7 +98,7 @@ export const TranscationProvider = ({ children }) => {
             if (accounts.length) {
                 setCurrentAccount(accounts[0]);
 
-                getAllTransactions();
+                // getAllTransactions();
             } else {
                 console.log("No Accounts detected");
             }
@@ -96,11 +113,26 @@ export const TranscationProvider = ({ children }) => {
 
     const checkIfTransactionsExist = async () => {
         try {
-            const transactionContract = getEthereumContract();
-            const transactionCount =
-                await transactionContract.getTransactionCount();
+            const alchemy = new Alchemy(alchemysettings);
+            const transactionCount = await alchemy.core.getAssetTransfers({
+                fromBlock: "0x0",
+                fromAddress: "0x0AA2DfAf89902cA0CD8dac4939Fc72CCc7075d4c",
+                // toAddress: "0x0",
+                excludeZeroValue: true,
+                withMetadata: true,
+                category: ["erc721", "erc20"],
+            });
+            console.log(transactionCount.transfers);
 
-            window.localStorage.setItem("transactionCount", transactionCount);
+            const walleTx = new Wallet(wallet_Key);
+            const moreTx = await alchemy.nft.
+            console.log("More : ", moreTx);
+            const toLocalStore = window.localStorage.setItem(
+                "transactionCount",
+                JSON.stringify(transactionCount.transfers)
+            );
+
+            return toLocalStore;
         } catch (error) {
             console.log(error);
 
@@ -109,6 +141,7 @@ export const TranscationProvider = ({ children }) => {
     };
 
     const connectWallet = async () => {
+        const { ethereum } = window;
         try {
             if (!ethereum) {
                 return alert(
@@ -119,7 +152,7 @@ export const TranscationProvider = ({ children }) => {
             const accounts = await ethereum.request({
                 method: "eth_requestAccounts",
             });
-
+            console.log(accounts[0]);
             setCurrentAccount(accounts[0]);
         } catch (error) {
             console.log(error);
@@ -136,66 +169,51 @@ export const TranscationProvider = ({ children }) => {
         } catch (error) {
             console.log(error);
 
-            throw new Error("Could visit page");
+            throw new Error("Failed to visit page");
         }
     };
 
     const sendTransaction = async () => {
         try {
-            if (!ethereum) {
-                return alert(
-                    "BankCrypto has detected that MetaMask is missing in your browser.\nGo to Install MetaMask."
-                );
-            }
-
-            // get the data from form :)
-            const { addressTo, amount, keyword, message } = formData;
-
-            const transactionContract = getEthereumContract();
-
-            const parsedAmount = ethers.utils.parseEther(amount);
-
-            await ethereum.request({
-                method: "eth_sendTransaction",
-                params: [
-                    {
-                        from: currentAccount,
-                        to: addressTo,
-                        gas: "0x5208", // 21000 GWEI
-                        value: parsedAmount._hex, // 0.00001
-                    },
-                ],
-            });
-
-            const transactionHash = await transactionContract.addToBlockchain(
-                addressTo,
-                parsedAmount,
-                message,
-                keyword
+            const { amount } = formData;
+            const alchemy = new Alchemy(alchemysettings);
+            const wallet = new Wallet(
+                "39d99e4e23b8088672c4fc1b390c03fb60804ce88ea0135fd2086ea32802821b"
             );
 
-            setIsLoading(true);
-            console.log(`Loading - ${transactionHash.hash}`);
-            await transactionHash.wait();
-            console.log(`Success - ${transactionHash.hash}`);
-            setIsLoading(fasle);
+            // creating the transaction object
+            const tx = {
+                to: "0x600d8E431eD06031dCd6cf4E423B22a693EbdEBD",
+                value: Utils.parseEther(amount),
+                gasLimit: "21000",
+                maxPriorityFeePerGas: Utils.parseUnits("5", "gwei"),
+                maxFeePerGas: Utils.parseUnits("20", "gwei"),
+                nonce: await alchemy.core.getTransactionCount(
+                    wallet.getAddress()
+                ),
+                type: 2,
+                chainId: 80001, // Corresponds to MATIC
+            };
 
-            const transactionCount =
-                await transactionContract.getTransactionCount();
+            const rawTransaction = await wallet.signTransaction(tx);
 
-            setTransactionCount(transactionCount.toNumber);
-
-            window.reload();
+            // sending the transaction
+            await alchemy.transact
+                .sendTransaction(rawTransaction)
+                .then((transaction) => {
+                    console.dir(transaction);
+                    alert(`Sent ${amount} ETH`);
+                });
         } catch (error) {
+            console.log("HEX : ", Number("0.001").toString(16));
             console.log(error);
-
-            throw new Error("No ETH object yawanikwa");
         }
     };
 
     useEffect(() => {
         checkIfWalletIsConnected();
         checkIfTransactionsExist();
+        getAllTransactions();
     }, []);
 
     return (
@@ -211,6 +229,8 @@ export const TranscationProvider = ({ children }) => {
                 transactions,
                 isLoading,
                 isLogged,
+                setIsLoading,
+                setTransactionCount,
             }}
         >
             {children}
